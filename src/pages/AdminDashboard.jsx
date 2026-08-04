@@ -71,7 +71,7 @@ export default function AdminDashboard({ navigate }) {
     }
   }, [currentUser]);
 
-  // ⬇️ Esnek & Güçlendirilmiş Firestore OEM Sorgu Fonksiyonu ⬇️
+  // ⚡ CANLI WEB SCRAPER / API OEM SORGU FONKSİYONU ⚡
   const handleAutoFillOEM = async () => {
     if (!newProduct.name.trim()) {
       alert('Lütfen önce bir ürün adı veya parça tanımı girin.');
@@ -80,68 +80,32 @@ export default function AdminDashboard({ navigate }) {
 
     setEnriching(true);
     try {
-      const searchTerms = newProduct.name.toLowerCase().split(' ').filter(term => term.length > 1);
-      
-      if (searchTerms.length === 0) {
-        alert('Lütfen daha detaylı bir ürün adı yazın.');
-        setEnriching(false);
-        return;
-      }
-
-      const oemRef = collection(db, 'oem_database');
-      const querySnapshot = await getDocs(oemRef);
-
-      if (querySnapshot.empty) {
-        alert('⚠️ Firestore "oem_database" koleksiyonunda henüz veri bulunmuyor.');
-        setEnriching(false);
-        return;
-      }
-
-      let bestMatch = null;
-      let highestScore = 0;
-
-      querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        
-        // Farklı alan adı tanımlamalarını esnekçe yakala
-        const nameVal = data.product_name || data.name || data.title || '';
-        const oemVal = data.oem_code || data.oem || data.code || '';
-        const modelVal = data.vehicle_model || data.vehicle || data.model || '';
-        const categoryVal = data.category || '';
-
-        const targetText = `${nameVal} ${modelVal} ${categoryVal} ${oemVal}`.toLowerCase();
-        
-        let matchScore = 0;
-        searchTerms.forEach(term => {
-          if (targetText.includes(term)) {
-            matchScore += 1;
-          }
-        });
-
-        if (matchScore > highestScore) {
-          highestScore = matchScore;
-          bestMatch = { ...data, nameVal, oemVal, modelVal, categoryVal };
-        }
+      // Doğrudan Vercel Python API'mize canlı istek atıyoruz:
+      const response = await fetch('/api/oem/enrich-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_name: newProduct.name })
       });
 
-      if (bestMatch && highestScore > 0) {
+      const data = await response.json();
+
+      if (data.success && data.oem_details && data.oem_details.length > 0) {
+        const bestMatch = data.oem_details[0];
+
         setNewProduct(prev => ({
           ...prev,
-          oem: bestMatch.oemVal || prev.oem,
-          vehicle: bestMatch.modelVal || prev.vehicle,
-          category: bestMatch.categoryVal || prev.category,
-          compatibleVin: bestMatch.compatible_vins && bestMatch.compatible_vins.length > 0 
-            ? (Array.isArray(bestMatch.compatible_vins) ? bestMatch.compatible_vins.join(', ') : bestMatch.compatible_vins)
-            : (bestMatch.vin || prev.compatibleVin)
+          oem: bestMatch.oem_code || prev.oem,
+          vehicle: bestMatch.matched_model || prev.vehicle,
+          category: bestMatch.category || prev.category
         }));
 
-        alert(`✅ Tam Eşleşme Bulundu!\n\nOEM Kodu: ${bestMatch.oemVal}\nAraç Modeli: ${bestMatch.modelVal}\nKategori: ${bestMatch.categoryVal}`);
+        alert(`✅ Canlı İnternet Taramasından OEM Çekildi!\n\nOEM Kodu: ${bestMatch.oem_code}\nModel/Kategori: ${bestMatch.matched_model}`);
       } else {
-        alert('Girdiğiniz ürün adıyla eşleşen bir OEM kaydı bulunamadı.');
+        alert(`❌ Eşleşme Bulunamadı:\n${data.message || 'Canlı OEM kodu tespit edilemedi. Lütfen ürün ismini kontrol edin.'}`);
       }
     } catch (error) {
-      console.error('OEM Sorgu Hatası:', error);
-      alert('OEM veritabanı sorgulanırken bir hata oluştu.');
+      console.error('Canlı OEM API Hatası:', error);
+      alert('Canlı OEM servisiyle iletişim kurulurken bir hata oluştu.');
     } finally {
       setEnriching(false);
     }
@@ -360,9 +324,9 @@ export default function AdminDashboard({ navigate }) {
                   type="button" 
                   onClick={handleAutoFillOEM} 
                   disabled={enriching}
-                  className="mt-1.5 w-full bg-slate-950 hover:bg-slate-800 text-amber-400 text-[11px] font-extrabold py-2 rounded-lg transition"
+                  className="mt-1.5 w-full bg-slate-950 hover:bg-slate-800 text-amber-400 text-[11px] font-extrabold py-2 rounded-lg transition cursor-pointer"
                 >
-                  {enriching ? '🔎 Firestore OEM Aranamakta...' : '⚡ Ürün İsminden Otomatik OEM Çek'}
+                  {enriching ? '🔎 Canlı Web Scraper Taranıyor...' : '⚡ Ürün İsminden Otomatik OEM Çek'}
                 </button>
               </div>
 
@@ -393,6 +357,7 @@ export default function AdminDashboard({ navigate }) {
                   <option value="Motor & Filtre">Motor & Filtre</option>
                   <option value="Aydınlatma">Aydınlatma</option>
                   <option value="Elektrik / Aydınlatma">Elektrik / Aydınlatma</option>
+                  <option value="Jant & Kapak">Jant & Kapak</option>
                 </select>
                 <select value={newProduct.vehicle} onChange={e => setNewProduct({...newProduct, vehicle: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:border-amber-400 focus:bg-white focus:outline-none">
                   <option value="Clio">Renault Clio</option>
