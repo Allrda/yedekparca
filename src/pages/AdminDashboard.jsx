@@ -62,7 +62,6 @@ export default function AdminDashboard({ navigate }) {
     }
   };
 
-  // ⬇️ Verileri Sadece İlk Yüklemede Çeken useEffect ⬇️
   useEffect(() => {
     const isOwner = currentUser?.email?.toLowerCase() === 'miracardabayr@gmail.com';
     if (currentUser && isOwner) {
@@ -71,7 +70,7 @@ export default function AdminDashboard({ navigate }) {
     }
   }, [currentUser]);
 
-  // ⚡ CANLI WEB SCRAPER / API OEM SORGU FONKSİYONU ⚡
+  // ⚡ CANLI WEB SCRAPER / API OEM & ŞASİ NO SORGU FONKSİYONU ⚡
   const handleAutoFillOEM = async () => {
     if (!newProduct.name.trim()) {
       alert('Lütfen önce bir ürün adı veya parça tanımı girin.');
@@ -80,7 +79,6 @@ export default function AdminDashboard({ navigate }) {
 
     setEnriching(true);
     try {
-      // Doğrudan Vercel Python API'mize canlı istek atıyoruz:
       const response = await fetch('/api/oem/enrich-product', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,12 +94,13 @@ export default function AdminDashboard({ navigate }) {
           ...prev,
           oem: bestMatch.oem_code || prev.oem,
           vehicle: bestMatch.matched_model || prev.vehicle,
-          category: bestMatch.category || prev.category
+          category: bestMatch.category || prev.category,
+          compatibleVin: bestMatch.compatible_vin || prev.compatibleVin
         }));
 
-        alert(`✅ Canlı İnternet Taramasından OEM Çekildi!\n\nOEM Kodu: ${bestMatch.oem_code}\nModel/Kategori: ${bestMatch.matched_model}`);
+        alert(`✅ Canlı İnternet Taramasından Veriler Çekildi!\n\nOEM Kodu: ${bestMatch.oem_code || 'Tespit Edilemedi'}\nUyumlu Şasi/Kasa: ${bestMatch.compatible_vin || 'Tüm Standart'}\nModel: ${bestMatch.matched_model}`);
       } else {
-        alert(`❌ Eşleşme Bulunamadı:\n${data.message || 'Canlı OEM kodu tespit edilemedi. Lütfen ürün ismini kontrol edin.'}`);
+        alert(`❌ Eşleşme Bulunamadı:\n${data.message || 'Canlı OEM/Şasi kodu tespit edilemedi. Lütfen ürün ismini kontrol edin.'}`);
       }
     } catch (error) {
       console.error('Canlı OEM API Hatası:', error);
@@ -326,7 +325,7 @@ export default function AdminDashboard({ navigate }) {
                   disabled={enriching}
                   className="mt-1.5 w-full bg-slate-950 hover:bg-slate-800 text-amber-400 text-[11px] font-extrabold py-2 rounded-lg transition cursor-pointer"
                 >
-                  {enriching ? '🔎 Canlı Web Scraper Taranıyor...' : '⚡ Ürün İsminden Otomatik OEM Çek'}
+                  {enriching ? '🔎 Canlı Web Scraper Taranıyor...' : '⚡ Ürün İsminden Otomatik OEM & Şasi Çek'}
                 </button>
               </div>
 
@@ -388,6 +387,11 @@ export default function AdminDashboard({ navigate }) {
                       <p className="text-[10px] text-slate-500 mt-0.5">
                         {product.vehicle} • <span className="font-mono bg-slate-100 text-slate-800 px-1 py-0.5 rounded">{product.oem || 'OEM Yok'}</span> • <span className="font-bold text-slate-950">{product.price} TL</span>
                       </p>
+                      {product.compatibleVin && (
+                        <p className="text-[9px] font-mono text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded mt-1 w-fit">
+                          Şasi: {product.compatibleVin}
+                        </p>
+                      )}
                     </div>
                     <button onClick={() => handleDeleteProduct(product.id)} className="text-xs text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg font-bold hover:bg-rose-500 hover:text-white transition cursor-pointer">
                       Sil
