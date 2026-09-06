@@ -32,7 +32,6 @@ export default function HomePage({
     getProducts();
   }, []);
 
-  // Reset visible limit when filters or search change
   useEffect(() => {
     setVisibleLimit(36);
   }, [searchQuery, selectedCategory, selectedVehicle]);
@@ -67,23 +66,11 @@ export default function HomePage({
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       
-      {/* BANNER - Uyumlu Premium Görünüm & Güvence Rozetleri */}
+      {/* BANNER - Temiz Başlık & Açıklama (Rozetler Kaldırıldı) */}
       <div className="relative rounded-3xl bg-slate-900 text-white p-6 md:p-10 shadow-xl border border-slate-800 overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
         
         <div className="relative z-10 max-w-3xl">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="bg-amber-400 text-slate-950 text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
-              🛡️ %100 Şasi Uyum Garantisi
-            </span>
-            <span className="bg-emerald-500 text-white text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
-              🚀 Aynı Gün Kargo (16:00'a kadar)
-            </span>
-            <span className="bg-blue-600 text-white text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
-              ⭐ Orijinal Akbay / Renault / Dacia Kataloğu ({products.length.toLocaleString('tr-TR')} Parça)
-            </span>
-          </div>
-
           <h1 className="text-2xl md:text-4xl font-black tracking-tight mb-2 text-white">
             Renault & Dacia Orijinal Yedek Parça Ambarı
           </h1>

@@ -57,7 +57,7 @@ export default function ProductDetailPage({ productId, navigate }) {
   const whatsappMessage = encodeURIComponent(
     `Merhaba Oto Faik Yedek Parça, "${product?.name}" (OEM: ${product?.oem}) ürünü için şasi kontrolü ve bilgi almak istiyorum.`
   );
-  const whatsappUrl = `https://wa.me/905320000000?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/905317855229?text=${whatsappMessage}`;
 
   if (loading) {
     return (
@@ -236,7 +236,7 @@ export default function ProductDetailPage({ productId, navigate }) {
               </button>
             </div>
 
-            {/* WhatsApp ile Şase Kontrolü / Bilgi Al Butonu */}
+            {/* WhatsApp ile Şase Kontrolü / Bilgi Al Butonu (5317855229) */}
             <a
               href={whatsappUrl}
               target="_blank"

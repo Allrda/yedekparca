@@ -9,7 +9,7 @@ export default function CartDrawer({ navigate }) {
   const whatsappMessage = encodeURIComponent(
     `Merhaba Oto Faik, sepetimde ${cartCount} adet ürün bulunuyor. Toplam Tutar: ${cartTotal.toLocaleString('tr-TR')} TL. Siparişimi tamamlamak ve şasi kontrolü yapmak istiyorum.`
   );
-  const whatsappUrl = `https://wa.me/905320000000?text=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/905317855229?text=${whatsappMessage}`;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
