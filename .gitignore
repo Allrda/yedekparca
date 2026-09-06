@@ -1,0 +1,22 @@
+# Secret keys
+**/serviceAccountKey.json
+serviceAccountKey.json
+*.pem
+*.key
+
+# Dependencies & Build
+node_modules/
+dist/
+build/
+.next/
+.cache/
+
+# Environment & Logs
+.env
+.env.local
+*.log
+scraper.log
+
+# OS generated
+.DS_Store
+Thumbs.db

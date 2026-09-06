@@ -1,0 +1,16 @@
+# Kimlik ve Güvenlik Dosyaları
+serviceAccountKey.json
+*.pem
+*.env
+
+# Lokal Kazıma Çıktıları
+data/
+*.log
+
+# Python Derleme ve Sanal Ortam
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env/
