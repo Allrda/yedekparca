@@ -3,11 +3,11 @@ import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 
 export default function Navbar({ navigate, searchTerm, setSearchTerm }) {
-  const { cartTotal, cartCount } = useContext(CartContext);
+  const { cartTotal, cartCount, openCart } = useContext(CartContext);
   const { currentUser, isAdmin, logout } = useContext(AuthContext);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md text-slate-900 shadow-sm border-b border-slate-200">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-900 shadow-sm border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 py-3">
         
         {/* ÜST SATIR: LOGO & BUTONLAR */}
@@ -28,7 +28,7 @@ export default function Navbar({ navigate, searchTerm, setSearchTerm }) {
                 RENAULT & DACIA
               </span>
               <span className="text-[8px] font-extrabold text-slate-500 tracking-wider uppercase mt-0.5">
-                Yedek Parça
+                Orijinal Yedek Parça Ambarı
               </span>
             </div>
           </div>
@@ -36,7 +36,7 @@ export default function Navbar({ navigate, searchTerm, setSearchTerm }) {
           {/* SAĞ KONTROLLER */}
           <div className="flex items-center gap-2">
             
-            {/* Sipariş Takip (Mobil Sadece İkon) */}
+            {/* Sipariş Takip */}
             <button
               onClick={() => navigate('track')}
               title="Sipariş Takibi"
@@ -73,10 +73,10 @@ export default function Navbar({ navigate, searchTerm, setSearchTerm }) {
               </button>
             )}
 
-            {/* SEPET */}
+            {/* SEPET (Slide-over Drawer Açar) */}
             <button
-              onClick={() => navigate('cart')}
-              className="flex items-center gap-1.5 bg-slate-950 hover:bg-slate-800 text-white font-black px-3 py-2 rounded-xl transition shadow-md active:scale-95 cursor-pointer"
+              onClick={openCart}
+              className="flex items-center gap-1.5 bg-slate-950 hover:bg-slate-800 text-white font-black px-3.5 py-2 rounded-xl transition shadow-md active:scale-95 cursor-pointer relative"
             >
               <span className="text-xs">🛒</span>
               <span className="text-xs font-bold text-amber-400 hidden sm:inline">{cartTotal.toLocaleString('tr-TR')} TL</span>
@@ -90,14 +90,14 @@ export default function Navbar({ navigate, searchTerm, setSearchTerm }) {
           </div>
         </div>
 
-        {/* ALT SATIR: MOBİL ARAMA BARI (Mobilde geniş ve kolay basılabilir) */}
+        {/* ALT SATIR: MOBİL ARAMA BARI (OEM ve Parça Arama) */}
         <div className="mt-2.5">
           <div className="relative">
             <input
               type="text"
               value={searchTerm || ''}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Parça adı veya OEM kodu girin (Örn: 7701478505)..."
+              placeholder="Parça adı veya OEM kodu girin (Örn: 7701478505, Triger Seti)..."
               className="w-full bg-slate-100 text-slate-900 text-xs font-medium pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 focus:bg-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all placeholder:text-slate-400 shadow-inner"
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">

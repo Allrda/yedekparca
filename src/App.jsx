@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import CartDrawer from './components/CartDrawer';
 import HomePage from './pages/Home';
 import ProductDetailPage from './pages/ProductDetail';
 import CartPage from './pages/Cart';
@@ -32,6 +33,8 @@ export function AppContent() {
         searchTerm={searchQuery} 
         setSearchTerm={setSearchQuery} 
       />
+      
+      <CartDrawer navigate={navigate} />
 
       <main className="flex-grow">
         {currentPage === 'home' && (

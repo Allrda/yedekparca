@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CategorySidebar from '../components/CategorySidebar';
 import ProductCard from '../components/ProductCard';
+import VehicleSelectorWidget from '../components/VehicleSelectorWidget';
 import { fetchProductsFromFirebase, MOCK_PRODUCTS } from '../services/firebase';
 
 export default function HomePage({ 
@@ -38,31 +39,44 @@ export default function HomePage({
     
     const oemRaw = product.oem ? product.oem.toLowerCase() : '';
     const oemClean = oemRaw.replace(/[^a-z0-9]/g, '');
-    const oemMatch = oemClean.includes(cleanQuery) || oemRaw.includes(rawQuery);
+    const oemMatch = cleanQuery.length > 0 && (oemClean.includes(cleanQuery) || oemRaw.includes(rawQuery));
 
     const matchesSearch = !rawQuery || nameMatch || oemMatch;
     const matchesCategory = selectedCategory === 'Tümü' || product.category === selectedCategory;
-    const matchesVehicle = selectedVehicle === 'Tüm Modeller' || product.vehicle === selectedVehicle;
+    
+    const vehicleRaw = selectedVehicle ? selectedVehicle.toLowerCase() : 'tüm modeller';
+    const matchesVehicle = vehicleRaw === 'tüm modeller' || 
+      (product.vehicle && product.vehicle.toLowerCase().includes(vehicleRaw)) ||
+      (product.compatibles && product.compatibles.some(c => c.toLowerCase().includes(vehicleRaw)));
 
     return matchesSearch && matchesCategory && matchesVehicle;
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       
-      {/* BANNER - Uyumlu Premium Görünüm */}
-      <div className="relative rounded-3xl bg-slate-900 text-white p-8 md:p-10 mb-8 shadow-md border border-slate-800 overflow-hidden">
+      {/* BANNER - Uyumlu Premium Görünüm & Güvence Rozetleri */}
+      <div className="relative rounded-3xl bg-slate-900 text-white p-6 md:p-10 shadow-xl border border-slate-800 overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div className="relative z-10 max-w-2xl">
-          <span className="bg-amber-400 text-slate-950 text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider mb-3 inline-block shadow-sm">
-            🛡️ %100 Şasi Uyum Garantili Parça Ambarı
-          </span>
+        <div className="relative z-10 max-w-3xl">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="bg-amber-400 text-slate-950 text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
+              🛡️ %100 Şasi Uyum Garantisi
+            </span>
+            <span className="bg-emerald-500 text-white text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
+              🚀 Aynı Gün Kargo (16:00'a kadar)
+            </span>
+            <span className="bg-blue-600 text-white text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
+              ⭐ Orijinal OYNAK / OYEM
+            </span>
+          </div>
+
           <h1 className="text-2xl md:text-4xl font-black tracking-tight mb-2 text-white">
-            Renault & Dacia Orijinal Yedek Parça
+            Renault & Dacia Orijinal Yedek Parça Ambarı
           </h1>
-          <p className="text-slate-400 text-xs md:text-sm mb-6 leading-relaxed max-w-xl">
-            Sipariş aşamasında gireceğiniz 17 haneli Şasi (VIN) kodunuz uzman ekibimizce kontrol edilir, yanlış parça gönderimi engellenir.
+          <p className="text-slate-300 text-xs md:text-sm mb-6 leading-relaxed max-w-2xl">
+            Akbay Oto ve Trendyol standartlarında; şasi numaranızla birebir eşleşen garantili fren, motor, filtre ve kaporta yedek parçaları en uygun fiyatlarla kapınızda.
           </p>
           
           {(selectedCategory !== 'Tümü' || selectedVehicle !== 'Tüm Modeller' || searchQuery) && (
@@ -76,6 +90,12 @@ export default function HomePage({
         </div>
       </div>
 
+      {/* İNTRAKTİF ARAÇ / ŞASİ (VIN) SEÇİCİ WIDGET */}
+      <VehicleSelectorWidget 
+        selectedVehicle={selectedVehicle} 
+        setSelectedVehicle={setSelectedVehicle} 
+      />
+
       {/* İÇERİK GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         <div className="lg:col-span-1 sticky top-24">
@@ -88,6 +108,23 @@ export default function HomePage({
         </div>
 
         <div className="lg:col-span-3">
+          <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div>
+              <h2 className="font-black text-sm md:text-base text-slate-900">
+                {selectedVehicle !== 'Tüm Modeller' ? `${selectedVehicle} Yedek Parçaları` : 'Tüm Yedek Parçalar'}
+                {selectedCategory !== 'Tümü' ? ` / ${selectedCategory}` : ''}
+              </h2>
+              <p className="text-[11px] text-slate-500 font-medium">
+                {filteredProducts.length} parça listeleniyor
+              </p>
+            </div>
+            {searchQuery && (
+              <span className="text-xs bg-amber-100 text-amber-900 font-bold px-3 py-1 rounded-xl">
+                Arama: "{searchQuery}"
+              </span>
+            )}
+          </div>
+
           {loading ? (
             <div className="bg-white rounded-3xl p-16 text-center border border-slate-200/80 shadow-sm flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
@@ -97,7 +134,13 @@ export default function HomePage({
             <div className="bg-white rounded-3xl p-16 text-center border border-slate-200/80 shadow-sm">
               <span className="text-4xl">🔍</span>
               <p className="text-sm font-extrabold text-slate-900 mt-3">Aranan kriterlere uygun parça bulunamadı.</p>
-              <p className="text-xs text-slate-500 mt-1">Arama terimini veya parça OEM kodunu kontrol edin.</p>
+              <p className="text-xs text-slate-500 mt-1 mb-4">Arama terimini, parça OEM kodunu veya seçili araç filtresini kontrol edin.</p>
+              <button
+                onClick={() => { setSelectedCategory('Tümü'); setSelectedVehicle('Tüm Modeller'); setSearchQuery(''); }}
+                className="bg-slate-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-slate-800 transition"
+              >
+                Tüm Parçaları Göster
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
