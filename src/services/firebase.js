@@ -19,9 +19,10 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged 
 } from "firebase/auth";
+import scrapedProductsData from '../data/scrapedProducts.json';
 
-// Mock Veriler (Fallback için)
-export const MOCK_PRODUCTS = [
+// Scraped Products & Mock Fallback
+export const MOCK_PRODUCTS = scrapedProductsData && scrapedProductsData.length > 0 ? scrapedProductsData : [
   {
     id: "7701478505",
     oem: "7701478505",
@@ -33,18 +34,6 @@ export const MOCK_PRODUCTS = [
     stock: 15,
     image: "https://via.placeholder.com/150",
     compatibles: ["Clio 4 1.5 dCi", "Megane 3 1.5 dCi"]
-  },
-  {
-    id: "8200768913",
-    oem: "8200768913",
-    oemCode: "8200768913",
-    name: "Yağ Filtresi Renault",
-    category: "Bakım",
-    vehicle: "Megane 3",
-    price: 250.00,
-    stock: 50,
-    image: "https://via.placeholder.com/150",
-    compatibles: ["Megane 3 1.5 dCi", "Fluence 1.5 dCi"]
   }
 ];
 
@@ -90,10 +79,9 @@ export const fetchProductByOEM = async (oemCode) => {
       const docSnap = querySnapshot.docs[0];
       return { id: docSnap.id, ...docSnap.data() };
     }
-    return null;
+    return MOCK_PRODUCTS.find(p => p.oem === oemCode.trim()) || null;
   } catch (error) {
-    console.error("OEM sorgu hatası:", error);
-    return null;
+    return MOCK_PRODUCTS.find(p => p.oem === oemCode.trim()) || null;
   }
 };
 
