@@ -15,6 +15,7 @@ export default function HomePage({
 }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [visibleLimit, setVisibleLimit] = useState(36);
 
   useEffect(() => {
     async function getProducts() {
@@ -30,6 +31,11 @@ export default function HomePage({
     }
     getProducts();
   }, []);
+
+  // Reset visible limit when filters or search change
+  useEffect(() => {
+    setVisibleLimit(36);
+  }, [searchQuery, selectedCategory, selectedVehicle]);
 
   const filteredProducts = products.filter(product => {
     const rawQuery = searchQuery ? searchQuery.toLowerCase().trim() : '';
@@ -52,6 +58,12 @@ export default function HomePage({
     return matchesSearch && matchesCategory && matchesVehicle;
   });
 
+  const displayedProducts = filteredProducts.slice(0, visibleLimit);
+
+  const loadMore = () => {
+    setVisibleLimit(prev => prev + 36);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       
@@ -68,7 +80,7 @@ export default function HomePage({
               🚀 Aynı Gün Kargo (16:00'a kadar)
             </span>
             <span className="bg-blue-600 text-white text-[11px] font-black px-3 py-1 rounded-lg uppercase tracking-wider shadow-sm">
-              ⭐ Orijinal OYNAK / OYEM
+              ⭐ Orijinal Akbay / Renault / Dacia Kataloğu ({products.length.toLocaleString('tr-TR')} Parça)
             </span>
           </div>
 
@@ -76,7 +88,7 @@ export default function HomePage({
             Renault & Dacia Orijinal Yedek Parça Ambarı
           </h1>
           <p className="text-slate-300 text-xs md:text-sm mb-6 leading-relaxed max-w-2xl">
-            Akbay Oto ve Trendyol standartlarında; şasi numaranızla birebir eşleşen garantili fren, motor, filtre ve kaporta yedek parçaları en uygun fiyatlarla kapınızda.
+            12.500+ geniş OEM parça kataloğumuzdan şasi numaranızla veya parça adıyla arama yapın, aracınıza tam uyan parçaları hemen keşfedin.
           </p>
           
           {(selectedCategory !== 'Tümü' || selectedVehicle !== 'Tüm Modeller' || searchQuery) && (
@@ -107,15 +119,15 @@ export default function HomePage({
           />
         </div>
 
-        <div className="lg:col-span-3">
-          <div className="flex items-center justify-between mb-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="lg:col-span-3 space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
             <div>
               <h2 className="font-black text-sm md:text-base text-slate-900">
-                {selectedVehicle !== 'Tüm Modeller' ? `${selectedVehicle} Yedek Parçaları` : 'Tüm Yedek Parçalar'}
+                {selectedVehicle !== 'Tüm Modeller' ? `${selectedVehicle} Yedek Parçaları` : 'Tüm Yedek Parçalar Kataloğu'}
                 {selectedCategory !== 'Tümü' ? ` / ${selectedCategory}` : ''}
               </h2>
               <p className="text-[11px] text-slate-500 font-medium">
-                {filteredProducts.length} parça listeleniyor
+                Toplam {filteredProducts.length.toLocaleString('tr-TR')} parça bulundu (Gösterilen: {Math.min(visibleLimit, filteredProducts.length)})
               </p>
             </div>
             {searchQuery && (
@@ -143,11 +155,24 @@ export default function HomePage({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id || product.oem} product={product} navigate={navigate} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayedProducts.map(product => (
+                  <ProductCard key={product.id || product.oem} product={product} navigate={navigate} />
+                ))}
+              </div>
+
+              {visibleLimit < filteredProducts.length && (
+                <div className="text-center pt-6">
+                  <button
+                    onClick={loadMore}
+                    className="bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs px-8 py-3.5 rounded-2xl shadow-lg transition active:scale-95 cursor-pointer inline-flex items-center gap-2"
+                  >
+                    <span>↓</span> Daha Fazla Parça Yükle ({filteredProducts.length - visibleLimit} ürün kaldı)
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
