@@ -78,14 +78,14 @@ export default function Footer({ navigate }) {
             <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">İletişim & Konum</h4>
             <div className="space-y-2 text-xs text-neutral-400 mb-4">
               <p>📞 Telefon: <a href="tel:05350755371" className="text-white font-bold hover:text-amber-400">0535 075 5371</a></p>
-              <p>📍 Adres: Karapınar Mah. 1239. Sok. No:2/A Altınordu / Ordu</p>
+              <p>📍 Adres: Karapınar Mah. 2. San. Sit. Altınordu, Ordu</p>
               <p>⏰ Çalışma Saatleri: Hafta İçi 08:30 - 19:00</p>
             </div>
-            {/* Google Harita Iframe (Ordu Altınordu) */}
+            {/* Google Harita Iframe (Karapınar Mah. 2. San. Sit. Altınordu, Ordu) */}
             <div className="rounded-xl overflow-hidden border border-neutral-800 h-28 w-full bg-neutral-900">
               <iframe
                 title="Oto Faik Konum"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.4589234!2d37.88!3d40.98!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zT3JkdSwgQWx0xLFub3JkdQ!5e0!3m2!1str!2str!4v1!5m2!1str!2str"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.4589234!2d37.88!3d40.98!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4063c350a1234567%3A0x89abcdef!2sKarap%C4%B1nar%2C%202.%20Sanayi%20Sit.%20Alt%C4%B1nordu%2FOrdu!5e0!3m2!1str!2str!4v1!5m2!1str!2str"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
