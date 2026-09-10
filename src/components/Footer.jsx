@@ -81,18 +81,28 @@ export default function Footer({ navigate }) {
               <p>📍 Adres: Karapınar Mah. 2. San. Sit. Altınordu, Ordu</p>
               <p>⏰ Çalışma Saatleri: Hafta İçi 08:30 - 19:00</p>
             </div>
-            {/* Google Harita Iframe (Karapınar Mah. 2. San. Sit. Altınordu, Ordu) */}
-            <div className="rounded-xl overflow-hidden border border-neutral-800 h-28 w-full bg-neutral-900">
-              <iframe
-                title="Oto Faik Konum"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.4589234!2d37.88!3d40.98!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4063c350a1234567%3A0x89abcdef!2sKarap%C4%B1nar%2C%202.%20Sanayi%20Sit.%20Alt%C4%B1nordu%2FOrdu!5e0!3m2!1str!2str!4v1!5m2!1str!2str"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
+            {/* Google Harita Iframe & Konum Linki */}
+            <div className="space-y-2">
+              <div className="rounded-xl overflow-hidden border border-neutral-800 h-28 w-full bg-neutral-900">
+                <iframe
+                  title="Oto Faik Konum"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.4589234!2d37.88!3d40.98!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4063c350a1234567%3A0x89abcdef!2sKarap%C4%B1nar%2C%202.%20Sanayi%20Sit.%20Alt%C4%B1nordu%2FOrdu!5e0!3m2!1str!2str!4v1!5m2!1str!2str"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+              <a
+                href="https://maps.app.goo.gl/HjhJe61aGUpHAUxr9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-[11px] font-bold text-amber-400 hover:text-amber-300 transition text-center bg-neutral-900 p-2 rounded-xl border border-neutral-800"
+              >
+                🗺️ Google Haritalar'da Tam Konumu Aç ↗
+              </a>
             </div>
           </div>
 
